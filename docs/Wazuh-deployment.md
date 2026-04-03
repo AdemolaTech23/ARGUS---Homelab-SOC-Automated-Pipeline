@@ -217,3 +217,65 @@ Before installing Wazuh, the server must have:
 - verified communication with core infrastructure systems
 
 This mirrors real-world enterprise deployment practices, where infrastructure validation is completed before deploying security monitoring platforms.
+
+---
+
+## Deployment Adjustment — OS Compatibility Issue
+
+During the initial attempt to deploy Wazuh, an issue was encountered related to operating system compatibility.
+
+The server (WAZUH01) was running **Ubuntu Server 24.04 LTS**, which resulted in compatibility issues with the Wazuh installation script and package dependencies.
+
+### Issue Identified
+
+While executing the installation process, it became evident that:
+- Certain Wazuh components are not fully supported on Ubuntu 24.04
+- Installation scripts and dependencies are more stable and documented on Ubuntu 22.04 LTS
+- Community and official documentation primarily reference Ubuntu 22.04 environments
+
+This created a risk of:
+- incomplete installation
+- broken services (indexer, dashboard, or manager)
+- additional troubleshooting overhead with limited documentation support
+
+📸 Screenshot: <img width="956" height="205" alt="image" src="https://github.com/user-attachments/assets/2d1acd1e-af3d-4499-89ae-202d66d56881" />
+
+
+---
+
+## Decision Made
+
+Instead of forcing compatibility or troubleshooting unsupported behavior, the environment was adjusted to align with a **stable and widely supported platform**.
+
+The decision was made to:
+- replace Ubuntu 24.04 with **Ubuntu Server 22.04 LTS**
+- rebuild the WAZUH01 server using the supported OS version
+- proceed with installation using a known, stable baseline
+
+---
+
+## Why This Decision Matters
+
+In real-world environments, engineers prioritize:
+- stability over novelty
+- supported configurations over experimental setups
+- documented deployment paths over unsupported workarounds
+
+Choosing a well-supported OS version ensures:
+- smoother installation process
+- better compatibility with security tools (Wazuh, TheHive, Shuffle)
+- easier troubleshooting using existing documentation and community resources
+
+---
+
+## Key Takeaway
+
+This step highlights an important principle in infrastructure and security engineering:
+
+> Successful deployments are not just about making things work, but making them work reliably within supported and documented environments.
+
+---
+
+## Next Step
+
+Rebuild WAZUH01 using **Ubuntu Server 22.04 LTS** and proceed with a clean installation of the Wazuh stack.
