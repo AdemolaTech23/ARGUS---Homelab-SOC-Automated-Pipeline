@@ -332,13 +332,77 @@ Starting from a clean, supported OS provides a reliable foundation for security 
 
 ---
 
+---
+
+## Step — Base System Configuration (22.04)
+
+With Ubuntu Server 22.04 successfully deployed, the WAZUH01 system was configured to align with the existing lab environment and infrastructure standards.
+
+This phase mirrors the configuration previously completed on earlier systems within the lab. To avoid redundancy, detailed command-level steps are not repeated here, as they are already documented in prior infrastructure setup sections.
+
+### Configuration Completed
+
+The following baseline configurations were applied:
+
+- Hostname set to **wazuh01**
+- Local host resolution updated (`/etc/hosts`)
+- Static IP configured as **192.168.0.60**
+- Default gateway set to **192.168.0.1**
+- DNS configured to use **192.168.0.10** (DC01)
+- Domain search suffix set to **lab.local**
+
+These settings ensure the system is fully integrated into the lab’s domain-aware network structure.
+
+---
+
+## Verification
+
+System configuration was validated to confirm proper alignment with network and infrastructure requirements.
+
+The following checks were performed:
+
+- OS version confirmed as **Ubuntu 22.04.5 LTS**
+- Network interface (**ens18**) shows correct static IP assignment
+- Hostname correctly applied and persistent
+- Successful connectivity to:
+  - **Gateway (192.168.0.1)**
+  - **Domain Controller (192.168.0.10)**
+
+All tests returned expected results with **0% packet loss**, confirming stable network communication.
+
+📸 Screenshot: System configuration and connectivity verification
+
+<img width="907" height="783" alt="image" src="https://github.com/user-attachments/assets/e243b1c2-ac36-4a3d-b436-fe75db547771" />
+
+---
+
+## Why This Step Matters
+
+Although this configuration phase is routine, it is critical for ensuring consistency across all infrastructure nodes within the lab.
+
+By reusing a standardized configuration approach:
+
+- deployment becomes predictable and repeatable
+- troubleshooting complexity is reduced
+- integration with centralized services (DNS, Active Directory) is ensured
+
+This reflects real-world practices where baseline system configuration is standardized across environments before deploying security or monitoring platforms.
+
+---
+
+## Status
+
+The WAZUH01 server is now fully prepared and aligned with the lab environment.
+
+The system is:
+- correctly identified
+- network-stable
+- domain-aware
+- ready for application deployment
+
+---
+
 ## Next Step
 
-Proceed with base system configuration on WAZUH01, including:
+Proceed with the installation of the Wazuh stack on WAZUH01.
 
-- hostname configuration
-- static IP assignment
-- DNS and domain alignment
-- connectivity validation
-
-Once the system is fully prepared, the Wazuh installation process will begin.
