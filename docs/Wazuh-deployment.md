@@ -279,3 +279,66 @@ This step highlights an important principle in infrastructure and security engin
 ## Next Step
 
 Rebuild WAZUH01 using **Ubuntu Server 22.04 LTS** and proceed with a clean installation of the Wazuh stack.
+
+---
+
+## Step — Rebuilt WAZUH01 on Supported OS
+
+Following the decision to move to a supported platform, a new virtual machine was deployed using **Ubuntu Server 22.04 LTS** within the Proxmox environment.
+
+### VM Configuration
+
+The new WAZUH01 server was provisioned with the following specifications:
+
+- **CPU:** 1 core (x86-64-v2-AES)
+- **Memory:** 8 GB RAM
+- **Storage:** 100 GB (qcow2)
+- **Network:** VirtIO (vmbr0 bridge)
+- **OS Image:** ubuntu-22.04.5-live-server-amd64.iso
+
+This configuration aligns with Wazuh’s resource requirements for an all-in-one deployment (manager, indexer, dashboard).
+
+📸 Screenshot: Proxmox VM configuration summary 
+
+<img width="748" height="545" alt="image" src="https://github.com/user-attachments/assets/e5ea53c6-f42d-48dd-b06e-21c8668beea5" />
+
+---
+
+## Installation Context
+
+This deployment replaces the previously cloned instance that was based on Ubuntu 24.04.
+
+By rebuilding the system from a clean ISO using a supported OS version, the environment is now:
+
+- aligned with official Wazuh documentation
+- free from legacy configuration conflicts
+- ready for a predictable installation process
+
+This ensures that any issues encountered moving forward are related to configuration or deployment steps, rather than underlying OS compatibility.
+
+---
+
+## Why This Step Matters
+
+Rebuilding instead of modifying an unsupported system reduces complexity and eliminates hidden variables.
+
+In enterprise environments, this approach is standard practice when:
+
+- base system compatibility is uncertain
+- deployment consistency is required across environments
+- long-term maintainability is a priority
+
+Starting from a clean, supported OS provides a reliable foundation for security tooling deployment.
+
+---
+
+## Next Step
+
+Proceed with base system configuration on WAZUH01, including:
+
+- hostname configuration
+- static IP assignment
+- DNS and domain alignment
+- connectivity validation
+
+Once the system is fully prepared, the Wazuh installation process will begin.
