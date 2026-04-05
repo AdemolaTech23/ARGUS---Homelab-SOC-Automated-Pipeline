@@ -422,3 +422,17 @@ sudo bash ./wazuh-install.sh -a
 
 <img width="790" height="127" alt="image" src="https://github.com/user-attachments/assets/fd200441-b764-416a-a375-ad08df4411e9" />
 
+
+
+### Wazuh Dashboard Access — Password Reset After Installation
+
+After the Wazuh installation completed, the dashboard login did not accept the initial `admin` credentials shown at the end of the installer output.
+
+To restore dashboard access, the internal Wazuh user password was updated directly from the server.
+
+---
+
+### Applied Command
+
+```bash
+sudo /usr/share/wazuh-indexer/plugins/opensearch-security/tools/wazuh-passwords-tool.sh -u admin -p 
