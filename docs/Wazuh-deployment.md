@@ -402,7 +402,23 @@ The system is:
 
 ---
 
-## Next Step
+## Wazuh Installation — Command Execution
 
-Proceed with the installation of the Wazuh stack on WAZUH01.
+> "Execution of the Wazuh all-in-one installation on WAZUH01 using the official installer."
+
+### Installation Method
+
+The Wazuh stack was deployed using the official all-in-one installer to align with a single-node architecture.
+
+---
+
+### Commands Executed
+
+```bash
+curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh
+sudo bash ./wazuh-install.sh -a
+```
+📸 Screenshot: Wazuh deployement 
+
+<img width="790" height="127" alt="image" src="https://github.com/user-attachments/assets/fd200441-b764-416a-a375-ad08df4411e9" />
 
