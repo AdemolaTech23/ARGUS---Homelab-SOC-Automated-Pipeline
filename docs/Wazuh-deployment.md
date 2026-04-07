@@ -598,5 +598,13 @@ The event was successfully collected and appeared in the dashboard with the foll
 
 ---
 
+---
 
+## Next Step
+
+With the Wazuh platform confirmed operational and actively ingesting events, the next phase focuses on preparing the Windows endpoints for agent enrollment.
+
+Before deploying the Wazuh agent on `DC01` and `WS01`, Sysmon must be installed on both machines to ensure enriched host-level telemetry is available from the moment the agent connects.
+
+**Continue:** [Sysmon Deployment — Windows Endpoints](../docs/sysmon-deployment-windows.md)
 
