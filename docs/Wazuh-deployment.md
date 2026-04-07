@@ -436,6 +436,7 @@ To restore dashboard access, the internal Wazuh user password was updated direct
 
 ```bash
 sudo /usr/share/wazuh-indexer/plugins/opensearch-security/tools/wazuh-passwords-tool.sh -u admin -p
+```
 
 # wazuh-validation
 
@@ -520,6 +521,8 @@ The following backend processes were confirmed running under the manager:
 - `wazuh-logcollector`
 - `wazuh-monitord`
 - `wazuh-modulesd`
+
+
 <img width="1069" height="559" alt="image" src="https://github.com/user-attachments/assets/7ecbd35a-224c-4a37-88f9-e09c40854ff6" />
 
 
@@ -535,11 +538,12 @@ sudo systemctl status wazuh-indexer
 
 Startup warnings were present in the log output but did not prevent the service from starting or remaining operational. The indexing backend is available for event storage and querying.
 
-![wazuh-indexer service status](screenshots/wazuh-indexer-status.png)
+<img width="1021" height="364" alt="image" src="https://github.com/user-attachments/assets/848d00fb-3ff7-4fa1-9e2f-8c61cd06ebd6" />
+
 
 ---
 
-### wazuh-dashboard
+## wazuh-dashboard
 
 ```bash
 sudo systemctl status wazuh-dashboard
@@ -549,11 +553,12 @@ sudo systemctl status wazuh-dashboard
 
 Service logs showed active request handling, confirming the dashboard frontend was online and responding.
 
-![wazuh-dashboard service status](screenshots/wazuh-dashboard-status.png)
+<img width="1148" height="353" alt="image" src="https://github.com/user-attachments/assets/9041bb44-3910-4049-8895-241f3b483b70" />
+
 
 ---
 
-## 3. Port Verification
+### 3. Port Verification
 
 ```bash
 sudo ss -telnp | grep -E "1514|1515|55000|9200|5601"
@@ -567,11 +572,12 @@ sudo ss -telnp | grep -E "1514|1515|55000|9200|5601"
 | `9200` | Wazuh indexer / OpenSearch backend | ✅ Listening |
 | `5601` | Dashboard interface | — |
 
-![listening ports output](screenshots/wazuh-ports.png)
+<img width="540" height="193" alt="image" src="https://github.com/user-attachments/assets/e21528f4-d83e-4d86-9dbc-112811f0a871" />
+
 
 ---
 
-## 4. Local Event Ingestion Test
+### 4. Local Event Ingestion Test
 
 A manual test event was generated on the Wazuh server to confirm active log collection and processing:
 
@@ -587,32 +593,10 @@ The event was successfully collected and appeared in the dashboard with the foll
 - `agent ID`
 - `manager name`
 
-![test event in dashboard](screenshots/wazuh-test-event.png)
+<img width="798" height="188" alt="image" src="https://github.com/user-attachments/assets/97323790-c63e-49f1-83e4-e9df21b84195" />
+
 
 ---
 
-## 5. Dashboard Data Verification
 
-After the test event was generated, the Wazuh dashboard reflected the ingested entry, confirming successful end-to-end flow:
 
-```
-local log generation
-       ↓
-manager collection
-       ↓
-indexer storage
-       ↓
-dashboard visualization
-```
-
-![dashboard data visibility](screenshots/wazuh-dashboard-data.png)
-
----
-
-## Environment
-
-| Field | Value |
-|---|---|
-| Host | `WAZUH01` |
-| Deployment type | All-in-one (single node) |
-| Role | SIEM |
