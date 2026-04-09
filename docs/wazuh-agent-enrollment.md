@@ -288,6 +288,6 @@ The event was successfully captured by Sysmon, shipped by the Wazuh agent, and a
 
 All three endpoints — `DC01`, `WS01`, and `INFRA01` — were successfully enrolled into the Wazuh manager as active agents. Sysmon log ingestion was confirmed on `DC01` by generating a simulated authentication event and verifying the resulting alert appeared in the Wazuh dashboard with full process telemetry and MITRE ATT&CK mapping.
 
-The Wazuh platform is now collecting enriched endpoint telemetry across the lab environment and is ready for the next phase of the pipeline.
+The Wazuh platform is now collecting enriched endpoint telemetry across the lab environment. Sysmon ingestion will next be verified on `WS01` before moving into active threat simulation.
 
-**Next:** [Splunk Deployment](splunk-deployment.md)
+**Next:** Verify Sysmon log ingestion on `WS01`, then proceed to Kali Linux VM setup and first real alert generation.
