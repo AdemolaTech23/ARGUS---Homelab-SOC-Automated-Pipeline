@@ -200,6 +200,94 @@ With all three agents enrolled and reporting, the Wazuh Endpoints summary confir
 
 ## Sysmon Log Ingestion
 
+With agents enrolled and active, the final step was to confirm that Sysmon event data from `DC01` was flowing through to the Wazuh dashboard.
+
+### Configuring the Agent to Collect Sysmon Logs
+
+By default, the Wazuh agent does not collect from the Sysmon event channel. The agent configuration file was updated on `DC01` to explicitly include the Sysmon operational log as a monitored source.
+
+The following block was added to `ossec.conf` on `DC01`:
+
+```xml
+
+  Microsoft-Windows-Sysmon/Operational
+  eventchannel
+
+```
+
+![ossec.conf updated with Sysmon localfile entry](screenshots/DC01-new-localfile-added.png)
+
+After saving the configuration, the Wazuh agent service was restarted to apply the changes:
+
+```powershell
+Restart-Service WazuhSvc
+Get-Service WazuhSvc
+```
+
+Output confirmed:
+
+```
+Status   Name       DisplayName
+------   ----       -----------
+Running  WazuhSvc   Wazuh
+```
+
+![Wazuh agent service restarted on DC01](screenshots/DC01-wazuh-service-restarted.png)
+
+---
+
+### Generating a Test Event
+
+To verify that Sysmon logs were being ingested, a simulated lateral movement attempt was executed on `DC01` using a failed network authentication command:
+
+```powershell
+net use \\DC01 /user:fakeuser wrongpassword
+```
+
+This intentionally triggered a failed logon attempt and a process creation event captured by Sysmon Event ID 1.
+
+Output on `DC01`:
+
+```
+System error 1326 has occurred.
+The user name or password is incorrect.
+```
+
+![Test command run on DC01](screenshots/DC01-command-ran-to-generate-log.png)
+
+---
+
+### Sysmon Event Visible in Wazuh
+
+The event was successfully captured by Sysmon, shipped by the Wazuh agent, and appeared in the Wazuh dashboard with full process metadata.
+
+**Key fields from the ingested alert:**
+
+| Field | Value |
+|---|---|
+| `agent.name` | `DC-01` |
+| `agent.ip` | `192.168.0.10` |
+| `manager.name` | `wazuh01` |
+| `data.win.system.eventID` | `1` (Process Create) |
+| `data.win.system.channel` | `Microsoft-Windows-Sysmon/Operational` |
+| `data.win.eventdata.image` | `C:\Windows\System32\net.exe` |
+| `data.win.eventdata.commandLine` | `net.exe use \\DC01 /user:fakeuser wrongpassword` |
+| `data.win.eventdata.parentImage` | `powershell.exe` |
+| `data.win.eventdata.user` | `LAB\Administrator` |
+| `rule.id` | `92037` |
+| `rule.description` | A net.exe connection to a remote resource was started by powershell.exe |
+| `rule.mitre.id` | `T1567` |
+| `rule.mitre.tactic` | Exfiltration |
+| `rule.level` | `3` |
+
+![Sysmon log ingested and visible in Wazuh dashboard](screenshots/DC01-sysmon-log-in-wazuh.png)
+
 ---
 
 ## Conclusion
+
+All three endpoints — `DC01`, `WS01`, and `INFRA01` — were successfully enrolled into the Wazuh manager as active agents. Sysmon log ingestion was confirmed on `DC01` by generating a simulated authentication event and verifying the resulting alert appeared in the Wazuh dashboard with full process telemetry and MITRE ATT&CK mapping.
+
+The Wazuh platform is now collecting enriched endpoint telemetry across the lab environment and is ready for the next phase of the pipeline.
+
+**Next:** [Splunk Deployment](splunk-deployment.md)
