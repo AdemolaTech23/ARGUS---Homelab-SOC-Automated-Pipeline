@@ -215,7 +215,10 @@ The following block was added to `ossec.conf` on `DC01`:
 
 ```
 
-![ossec.conf updated with Sysmon localfile entry](screenshots/DC01-new-localfile-added.png)
+![ossec.conf updated with Sysmon localfile entry]
+
+<img width="615" height="517" alt="image" src="https://github.com/user-attachments/assets/19d3679b-2ed2-4c1a-9739-3621f4ffcff8" />
+(screenshots/DC01-new-localfile-added.png)
 
 After saving the configuration, the Wazuh agent service was restarted to apply the changes:
 
@@ -232,7 +235,10 @@ Status   Name       DisplayName
 Running  WazuhSvc   Wazuh
 ```
 
-![Wazuh agent service restarted on DC01](screenshots/DC01-wazuh-service-restarted.png)
+![Wazuh agent service restarted on DC01]
+
+<img width="629" height="132" alt="image" src="https://github.com/user-attachments/assets/4a643f8f-d2e9-425f-bcde-380aa336d391" />
+(screenshots/DC01-wazuh-service-restarted.png)
 
 ---
 
@@ -253,7 +259,10 @@ System error 1326 has occurred.
 The user name or password is incorrect.
 ```
 
-![Test command run on DC01](screenshots/DC01-command-ran-to-generate-log.png)
+![Test command run on DC01]
+
+<img width="675" height="145" alt="image" src="https://github.com/user-attachments/assets/55e25faa-a0cb-467d-81b6-dd265d38dcc9" />
+(screenshots/DC01-command-ran-to-generate-log.png)
 
 ---
 
@@ -280,7 +289,10 @@ The event was successfully captured by Sysmon, shipped by the Wazuh agent, and a
 | `rule.mitre.tactic` | Exfiltration |
 | `rule.level` | `3` |
 
-![Sysmon log ingested and visible in Wazuh dashboard](screenshots/DC01-sysmon-log-in-wazuh.png)
+![Sysmon log ingested and visible in Wazuh dashboard]
+
+<img width="1474" height="511" alt="image" src="https://github.com/user-attachments/assets/a944025b-a2d7-4f64-ae71-57fce8347fb4" />
+(screenshots/DC01-sysmon-log-in-wazuh.png)
 
 ---
 
