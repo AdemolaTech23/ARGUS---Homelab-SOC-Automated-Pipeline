@@ -302,4 +302,7 @@ All three endpoints — `DC01`, `WS01`, and `INFRA01` — were successfully enro
 
 The Wazuh platform is now collecting enriched endpoint telemetry across the lab environment. 
 
-**Next:**  proceed to Kali Linux VM setup and first real alert generation.
+**Next:** [Kali Linux Setup & Attack Simulation](kali-attack-simulation.md) — 
+KALI-01 is deployed to the network and used to generate real attack traffic 
+against lab endpoints, validating the full detection pipeline from threat 
+generation through Wazuh alerting.
