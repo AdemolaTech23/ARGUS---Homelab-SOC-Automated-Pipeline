@@ -179,4 +179,4 @@ Both `DC01` and `WS01` are now:
 
 With host-level telemetry confirmed on both machines, the environment is ready for the next phase.
 
-**Next:** [Wazuh Agent Enrollment](../docs/wazuh-agent-enrollment-.md) — enroll `DC01` and `WS01` into the Wazuh manager and confirm log ingestion from both endpoints.
+**Next:** [Wazuh Agent Enrollment](../docs/wazuh-agent-enrollment.md) — enroll `DC01` and `WS01` into the Wazuh manager and confirm log ingestion from both endpoints.
