@@ -48,26 +48,53 @@ KALI-01 was provisioned in Proxmox using the Kali Linux 2026.1 x86_64 installer 
 
 ---
 
-## Verification
+## Network Configuration
 
-After installation, network connectivity was confirmed from the terminal:
+### Static IP Assignment
+
+To ensure consistent identification within the lab, KALI-01 was configured with a static IP address using `nmcli`:
 
 ```bash
-ping 192.168.0.1   # gateway
-ping 8.8.8.8       # internet
+sudo nmcli con mod "Wired connection 1" \
+  ipv4.addresses 192.168.0.80/24 \
+  ipv4.gateway 192.168.0.1 \
+  ipv4.dns 192.168.0.10 \
+  ipv4.method manual
+
+sudo nmcli con up "Wired connection 1"
+```
+
+Output confirmed:
+
+```
+Connection successfully activated
+```
+
+Interface `eth0` was confirmed with the assigned static address:
+
+```
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP>
+    inet 192.168.0.80/24 brd 192.168.0.255 scope global noprefixroute eth0
+```
+
+![KALI-01 static IP configured](screenshots/KALI01-vm-staticip.png)
+
+---
+## Verification
+
+After static IP assignment, connectivity to the gateway and domain controller was confirmed:
+
+```bash
+ping 192.168.0.1    # gateway
+ping 192.168.0.10   # DC01
 ```
 
 **Results:**
 
 - Gateway (`192.168.0.1`): 4 packets transmitted, 4 received, **0% packet loss**
-- Internet (`8.8.8.8`): 4 packets transmitted, 4 received, **0% packet loss**
+- DC01 (`192.168.0.10`): 4 packets transmitted, 4 received, **0% packet loss**
 
-Both confirmed KALI-01 is live on the `192.168.0.0/24` network with full internet access.
-
-![KALI-01 network connectivity verified]
-
-<img width="655" height="515" alt="image" src="https://github.com/user-attachments/assets/cbb9424b-bf1c-428d-aa9d-986f29121808" />
-(screenshots/KALI01-vm-installed.png)
+![KALI-01 connectivity to gateway and DC01 verified](screenshots/KALI01-vm-test-connectivity.png)
 
 ---
 
@@ -79,8 +106,97 @@ Both confirmed KALI-01 is live on the `192.168.0.0/24` network with full interne
 | `WS01` | Workstation | Windows 10 Pro | `192.168.0.70` |
 | `INFRA01` | Infrastructure Server | Ubuntu 24.04.4 LTS | `192.168.0.50` |
 | `WAZUH01` | SIEM | Ubuntu 22.04 LTS | `192.168.0.60` |
-| `KALI-01` | Attack Simulation | Kali Linux 2026.1 | `192.168.0.x` |
+| `KALI-01` | Attack Simulation | Kali Linux 2026.1 | `192.168.0.80` |
 
 ---
 
 ## Attack Simulation
+
+### Pre-Attack: False Positive Investigation & Alert Tuning
+
+Before running any attacks, the Wazuh Threat Hunting dashboard was reviewed to establish a baseline. The Events tab was set to **Last 24 hours** and filtered for rule level 15 and above.
+
+Unexpectedly, **29 critical alerts** were already present — all originating from `DC-01` before any attack simulation had begun.
+
+![Wazuh Threat Hunting dashboard — 29 pre-existing critical alerts](screenshots/wazuh-alert-diskmgr-1.png)
+
+**Alert details:**
+
+| Field | Value |
+|---|---|
+| `rule.id` | `92213` |
+| `rule.level` | `15` |
+| `rule.description` | Executable file dropped in folder commonly used by malware |
+| `rule.mitre.technique` | Ingress Tool Transfer (`T1105`) |
+| `rule.mitre.tactic` | Command and Control |
+| `data.win.eventdata.image` | `C:\Windows\system32\cleanmgr.exe` |
+| `data.win.eventdata.targetFilename` | `WimProvider.dll` (dropped in Temp folder) |
+| `data.win.eventdata.user` | `LAB\Administrator` |
+| `data.win.system.eventID` | `11` (File Created) |
+| `data.win.system.channel` | `Microsoft-Windows-Sysmon/Operational` |
+
+![Alert document details — cleanmgr.exe DLL drop](screenshots/wazuh-alert-diskmgr-2.png)
+![Rule 92213 details — Ingress Tool Transfer](screenshots/wazuh-alert-diskmgr-3.png)
+
+**Verdict: False positive.** Windows Disk Cleanup (`cleanmgr.exe`) legitimately extracts DLL files to Temp folders during normal operation. The Sysmon EID 11 rule was too broad and flagged this routine behavior as suspicious.
+
+---
+
+### Alert Tuning — Suppression Rule
+
+Rather than disabling the rule entirely, a targeted suppression rule was written to silence it only when the offending process is specifically `cleanmgr.exe`. Any other process dropping executables into Temp folders will still trigger a full level 15 alert.
+
+`DC01` was used to SSH into `WAZUH01` to edit the local rules file:
+
+```powershell
+ssh addo@192.168.0.60
+```
+
+![SSH into WAZUH01 from DC01](screenshots/DC01-ssh-into-wazuh01.png)
+
+The local rules file was opened:
+
+```bash
+sudo nano /var/ossec/etc/rules/local_rules.xml
+```
+
+**Before** — default example rule only:
+
+![local_rules.xml before changes](screenshots/DC01-ssh-wazuh01-old-config.png)
+
+The following suppression rule was added:
+
+```xml
+<group name="sysmon,">
+  <rule id="100002" level="0">
+    <if_sid>92213</if_sid>
+    <field name="win.eventdata.image">cleanmgr.exe</field>
+    <description>False positive - Windows Disk Cleanup dropping temp DLL</description>
+  </rule>
+</group>
+```
+
+**After** — suppression rule added below the existing group:
+
+![local_rules.xml after suppression rule added](screenshots/DC01-ssh-wazuh01-new-config.png)
+
+**Rule breakdown:**
+
+| Element | Purpose |
+|---|---|
+| `if_sid: 92213` | Only applies when the parent rule fires |
+| `field: win.eventdata.image` | Matches specifically on `cleanmgr.exe` |
+| `level: 0` | Silences the alert completely |
+| `id: 100002` | Custom rule IDs start at 100000 to avoid conflicts with built-in Wazuh rules |
+
+The Wazuh manager was restarted to load the new rule with no syntax errors reported.
+
+---
+
+### Key Takeaways
+
+- Always investigate unexpected alerts before adding attack noise they may reveal real tuning opportunities
+- Alert tuning is a core detection engineering skill reducing false positives without weakening coverage
+- Wazuh is agent-based, not network-based — it reads endpoint logs, not packet traffic. Basic network scans may not trigger alerts without more aggressive techniques or a dedicated network IDS such as Suricata
+
+---
