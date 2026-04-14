@@ -226,3 +226,144 @@ The Wazuh manager was restarted to load the new rule with no syntax errors repor
 - Wazuh is agent-based, not network-based — it reads endpoint logs, not packet traffic. Basic network scans may not trigger alerts without more aggressive techniques or a dedicated network IDS such as Suricata
 
 ---
+
+### Attack 1 — SMB Brute Force Against DC01
+
+#### Objective
+
+Simulate a credential brute force attack against the domain administrator account on `DC01` over SMB and confirm detection in Wazuh.
+
+---
+
+#### Step 1 — Reconnaissance: Port Scan
+
+Before launching the attack, an Nmap SYN scan was run from `KALI-01` against `DC01` to identify open and filtered ports:
+
+```bash
+sudo nmap -sS -p 22,80,443,445,3389,5985,389,135 192.168.0.10
+```
+
+**Results:**
+
+| Port | State | Service |
+|---|---|---|
+| `22` | filtered | ssh |
+| `80` | filtered | http |
+| `135` | open | msrpc |
+| `389` | open | ldap |
+| `443` | filtered | https |
+| `445` | open | microsoft-ds (SMB) |
+| `3389` | open | ms-wbt-server (RDP) |
+| `5985` | open | wsman (WinRM) |
+
+Port `445` (SMB) was confirmed open — the primary attack surface for credential brute forcing in an Active Directory environment.
+
+![Nmap port scan results against DC01](screenshots/Screenshot_KALI01_Scanned_Dc01_for_openports.png)
+
+---
+
+#### Step 2 — Attempted Brute Force with Hydra (Failed)
+
+Initial brute force attempts were made using Hydra across multiple protocols:
+
+- **SMB** — Hydra could not speak SMB2/SMB3, returned `invalid reply`
+- **RDP** — Connection failed, likely due to Network Level Authentication (NLA) or GPO restriction on `DC01`
+- **WinRM** — Port 5985 not responding as expected
+
+Hydra is not suited for modern Windows environments running SMB2/SMB3. A more capable tool was required.
+
+---
+
+#### Step 3 — CrackMapExec Installation & Brute Force (Succeeded)
+
+CrackMapExec was installed on `KALI-01`:
+
+```bash
+sudo apt install crackmapexec -y
+```
+
+![CrackMapExec installed on KALI-01](screenshots/Screenshot_KALI01_installed_CrackMapExec.png)
+
+An SMB brute force attack was launched against `DC01` targeting the `administrator` account using the `rockyou.txt` wordlist:
+
+```bash
+crackmapexec smb 192.168.0.10 -u administrator -p /usr/share/wordlists/rockyou.txt
+```
+
+CrackMapExec successfully spoke SMB2/SMB3 and began hammering `DC01` with authentication attempts. Each failed attempt returned `STATUS_LOGON_FAILURE`.
+
+```
+SMB  192.168.0.10  445  DC01  [-] lab.local\administrator:123456 STATUS_LOGON_FAILURE
+SMB  192.168.0.10  445  DC01  [-] lab.local\administrator:password STATUS_LOGON_FAILURE
+SMB  192.168.0.10  445  DC01  [-] lab.local\administrator:iloveyou STATUS_LOGON_FAILURE
+...
+```
+
+![CrackMapExec brute force running against DC01](screenshots/Screenshot_KALI01_runs_bruteforeattack_onDC01_using_crackmapexec.png)
+
+---
+
+#### Step 4 — Detection on DC01 (Windows Event Viewer)
+
+The brute force generated **3,977 Event ID 4625** (An account failed to log on) entries within the last hour, visible in the Windows Security event log on `DC01`.
+
+**Event details:**
+
+| Field | Value |
+|---|---|
+| Event ID | `4625` |
+| Log | Security |
+| Task Category | Logon |
+| Keywords | Audit Failure |
+| Computer | `DC01.lab.local` |
+| Description | An account failed to log on |
+
+![DC01 Event Viewer — mass 4625 logon failures](screenshots/Screenshot_DC01_bruteforce_attacklog_in_event_viewer.png)
+
+---
+
+#### Step 5 — Wazuh Alert Detection
+
+Wazuh detected the brute force pattern and fired **Rule 60204 — Multiple Windows Logon Failures** across **500+ hits** within the attack window.
+
+**Alert summary:**
+
+| Field | Value |
+|---|---|
+| `rule.id` | `60204` |
+| `rule.description` | Multiple Windows Logon Failures |
+| `rule.level` | `10` (High) |
+| `agent.name` | `DC-01` |
+| `MITRE Technique` | T1110 — Brute Force |
+| `MITRE Tactic` | Credential Access |
+
+Full event data confirmed the complete attack chain:
+
+| Field | Value |
+|---|---|
+| Source IP | `192.168.0.80` (KALI-01) ✅ |
+| Target account | `administrator@lab.local` ✅ |
+| Logon Type | `3` (Network / SMB) ✅ |
+| Auth Package | NTLM ✅ |
+| Status | `0xC000006D` / SubStatus `0xC000006A` (bad password) ✅ |
+
+![Wazuh — Rule 60204 firing across 500+ events](screenshots/Screenshot_DC01_bruteforce_attacklog.png)
+
+---
+
+#### What Was Proven
+
+| Outcome | Status |
+|---|---|
+| KALI-01 can reach and attack DC01 over SMB | ✅ |
+| DC01 Wazuh agent collecting and forwarding Security logs | ✅ |
+| Wazuh parsing Windows events and matching rules correctly | ✅ |
+| Full attack chain visible: attacker → target → SIEM | ✅ |
+
+---
+
+#### Key Takeaways
+
+- Hydra is not suited for modern Windows SMB2/SMB3 environments — CrackMapExec is the correct tool for AD brute force simulation
+- Wazuh rule `60204` is a composite rule — it detects the pattern of repeated failures, not just individual events
+- The `administrator` account did not lock out during the attack, indicating **no account lockout policy is currently configured on `DC01`** — a security gap worth noting
