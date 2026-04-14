@@ -143,8 +143,15 @@ Unexpectedly, **29 critical alerts** were already present — all originating fr
 | `data.win.system.eventID` | `11` (File Created) |
 | `data.win.system.channel` | `Microsoft-Windows-Sysmon/Operational` |
 
-![Alert document details — cleanmgr.exe DLL drop](screenshots/wazuh-alert-diskmgr-2.png)
-![Rule 92213 details — Ingress Tool Transfer](screenshots/wazuh-alert-diskmgr-3.png)
+![Alert document details — cleanmgr.exe DLL drop]
+
+<img width="1885" height="925" alt="image" src="https://github.com/user-attachments/assets/48f13467-e066-43c7-bb6b-73eead4fe8ba" />
+
+
+![Rule 92213 details — Ingress Tool Transfer]
+
+<img width="1903" height="976" alt="image" src="https://github.com/user-attachments/assets/df2188ee-9cb7-443b-85c0-33e63fe9ec2a" />
+
 
 **Verdict: False positive.** Windows Disk Cleanup (`cleanmgr.exe`) legitimately extracts DLL files to Temp folders during normal operation. The Sysmon EID 11 rule was too broad and flagged this routine behavior as suspicious.
 
@@ -160,7 +167,10 @@ Rather than disabling the rule entirely, a targeted suppression rule was written
 ssh addo@192.168.0.60
 ```
 
-![SSH into WAZUH01 from DC01](screenshots/DC01-ssh-into-wazuh01.png)
+![SSH into WAZUH01 from DC01]
+
+<img width="644" height="507" alt="image" src="https://github.com/user-attachments/assets/0c2e2b80-7e98-4ad6-bad9-9d845406f96a" />
+(screenshots/DC01-ssh-into-wazuh01.png)
 
 The local rules file was opened:
 
@@ -170,7 +180,11 @@ sudo nano /var/ossec/etc/rules/local_rules.xml
 
 **Before** — default example rule only:
 
-![local_rules.xml before changes](screenshots/DC01-ssh-wazuh01-old-config.png)
+![local_rules.xml before changes]
+
+<img width="729" height="356" alt="image" src="https://github.com/user-attachments/assets/8e5753d8-9024-4b81-936a-7e9b5876fa52" />
+
+(screenshots/DC01-ssh-wazuh01-old-config.png)
 
 The following suppression rule was added:
 
@@ -186,7 +200,11 @@ The following suppression rule was added:
 
 **After** — suppression rule added below the existing group:
 
-![local_rules.xml after suppression rule added](screenshots/DC01-ssh-wazuh01-new-config.png)
+![local_rules.xml after suppression rule added]
+
+<img width="843" height="443" alt="image" src="https://github.com/user-attachments/assets/bea8f4af-5e07-4c84-837f-81e156d02671" />
+
+(screenshots/DC01-ssh-wazuh01-new-config.png)
 
 **Rule breakdown:**
 
