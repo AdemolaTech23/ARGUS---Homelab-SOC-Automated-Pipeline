@@ -77,7 +77,9 @@ Interface `eth0` was confirmed with the assigned static address:
     inet 192.168.0.80/24 brd 192.168.0.255 scope global noprefixroute eth0
 ```
 
-![KALI-01 static IP configured](screenshots/KALI01-vm-staticip.png)
+![KALI-01 static IP configured]
+
+<img width="772" height="507" alt="image" src="https://github.com/user-attachments/assets/cdef6a67-2718-45be-91a7-3bd1e264b78c" />
 
 ---
 ## Verification
@@ -94,7 +96,10 @@ ping 192.168.0.10   # DC01
 - Gateway (`192.168.0.1`): 4 packets transmitted, 4 received, **0% packet loss**
 - DC01 (`192.168.0.10`): 4 packets transmitted, 4 received, **0% packet loss**
 
-![KALI-01 connectivity to gateway and DC01 verified](screenshots/KALI01-vm-test-connectivity.png)
+![KALI-01 connectivity to gateway and DC01 verified]
+
+<img width="778" height="513" alt="image" src="https://github.com/user-attachments/assets/fba59c1f-3f72-4014-84fd-5bf1289c7957" />
+
 
 ---
 
@@ -118,7 +123,10 @@ Before running any attacks, the Wazuh Threat Hunting dashboard was reviewed to e
 
 Unexpectedly, **29 critical alerts** were already present — all originating from `DC-01` before any attack simulation had begun.
 
-![Wazuh Threat Hunting dashboard — 29 pre-existing critical alerts](screenshots/wazuh-alert-diskmgr-1.png)
+![Wazuh Threat Hunting dashboard — 29 pre-existing critical alerts]
+
+<img width="1893" height="881" alt="image" src="https://github.com/user-attachments/assets/56aa20c8-200e-4649-b1b3-6151c3c0a9bc" />
+
 
 **Alert details:**
 
