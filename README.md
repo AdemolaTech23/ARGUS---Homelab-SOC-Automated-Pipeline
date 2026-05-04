@@ -15,7 +15,7 @@ detection and automated incident response.
 
 ## Documentation
 
-- [Wazuh Deployment](docs/wazuh-deployment.md)
+- [Wazuh Deployment](docs/Wazuh-deployment.md)
 - [Wazuh Agent Deployment](docs/wazuh-agent-deployment.md)
 - [Sysmon Deployment — Windows](docs/sysmon-deployment-windows.md)
 - [Elastic Deployment](docs/elastic-deployment.md)
