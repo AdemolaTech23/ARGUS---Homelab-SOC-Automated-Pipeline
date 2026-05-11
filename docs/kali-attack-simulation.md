@@ -354,19 +354,189 @@ Full event data confirmed the complete attack chain:
 
 ---
 
-#### What Was Proven
+### Tool Migration — CrackMapExec to NetExec
 
-| Outcome | Status |
-|---|---|
-| KALI-01 can reach and attack DC01 over SMB | ✅ |
-| DC01 Wazuh agent collecting and forwarding Security logs | ✅ |
-| Wazuh parsing Windows events and matching rules correctly | ✅ |
-| Full attack chain visible: attacker → target → SIEM | ✅ |
+CrackMapExec (5.4.0-kali7) failed on Kali 2026.1 due to a Python 3.13 asyncio incompatibility.
+
+![CrackMapExec Python 3.13 crash] <img width="644" height="411" alt="image" src="https://github.com/user-attachments/assets/30f9b33e-b6b1-4bb0-86d0-43bc65bf1008" />
+
+
+Investigation confirmed the root cause:
+
+![Python 3.13 and CrackMapExec version] <img width="654" height="379" alt="image" src="https://github.com/user-attachments/assets/6d748fbd-3698-4dc6-b0bc-2a8bdabe55d3" />
+
+
+- Python 3.13.12 is running on KALI-01
+- CrackMapExec 5.4.0-kali7 is installed but crashes under Python 3.13
+- `pipx install crackmapexec` also failed — package no longer exists on PyPI
+
+![pipx install failure] <img width="662" height="248" alt="image" src="https://github.com/user-attachments/assets/101445d8-dc20-4bb1-9a62-9f8529b0a95d" />
+
+**Resolution:** Installed NetExec (`nxc`) — the actively maintained successor to CrackMapExec:
+
+```bash
+sudo apt install netexec -y
+nxc --version
+```
+
+![NetExec 1.5.1 confirmed] <img width="479" height="441" alt="image" src="https://github.com/user-attachments/assets/0e7a9709-39cc-4a6c-97e1-e04d11fd4b5d" />
 
 ---
 
-#### Key Takeaways
+### Attack 2 — Account Lockout Policy Validation
 
-- Hydra is not suited for modern Windows SMB2/SMB3 environments — CrackMapExec is the correct tool for AD brute force simulation
-- Wazuh rule `60204` is a composite rule — it detects the pattern of repeated failures, not just individual events
-- The `administrator` account did not lock out during the attack, indicating **no account lockout policy is currently configured on `DC01`** — a security gap worth noting
+#### Account Lockout Policy — DC-01
+
+Configured via Group Policy Management Editor on DC-01:
+
+![Account lockout policy configured] <img width="1007" height="607" alt="image" src="https://github.com/user-attachments/assets/2c429614-8e4d-4b39-891a-15dab0a5cf17" />
+
+
+| Setting | Value |
+|---|---|
+| Account lockout threshold | 3 invalid logon attempts |
+| Account lockout duration | 30 minutes |
+| Reset account lockout counter after | 30 minutes |
+
+#### Test Accounts
+
+All domain users listed to select a test account:
+
+![AD users enumerated on DC-01] <img width="777" height="416" alt="image" src="https://github.com/user-attachments/assets/a5c10dd8-6a57-4784-9f0c-25eda960611c" />
+
+
+`jasmine.rodgers` selected as the test account. Password set to a known value for testing:
+
+```powershell
+Set-ADAccountPassword -Identity jasmine.rodgers -NewPassword (ConvertTo-SecureString "TempPassword123!" -AsPlainText -Force) -Reset
+Unlock-ADAccount -Identity jasmine.rodgers
+```
+
+#### Attack Executed
+
+Initial run with `rockyou.txt` against `administrator` failed with a UTF-8 decode error:
+
+![NetExec UTF-8 error] <img width="714" height="260" alt="image" src="https://github.com/user-attachments/assets/c85bdb85-5d1c-4615-9d0c-d4913b1314bf" />
+
+
+Fixed with `--ignore-pw-decoding` flag:
+
+```bash
+nxc smb 192.168.0.10 -u jasmine.rodgers -p /usr/share/wordlists/rockyou.txt --ignore-pw-decoding
+```
+
+After 3 failed attempts, all subsequent attempts returned `STATUS_ACCOUNT_LOCKED_OUT`:
+
+![Jasmine.rodgers account locked out in NetExec] <img width="693" height="460" alt="image" src="https://github.com/user-attachments/assets/fa33f1bd-df9c-4382-8a90-9e16ace3a532" />
+
+
+#### Detection in Wazuh
+
+Rule 60115 fired for both accounts:
+
+![Two EID 4740 lockout alerts in Wazuh] <img width="1891" height="322" alt="image" src="https://github.com/user-attachments/assets/b2cdbaf7-fca5-4c20-9ed8-0a06de752966" />
+
+
+![Rule 60115 detail] <img width="1352" height="566" alt="image" src="https://github.com/user-attachments/assets/e6ddbaef-3811-4cc5-bc1e-2bc1794df350" />
+
+| Field | Value |
+|---|---|
+| `rule.id` | `60115` |
+| `rule.description` | User account locked out (multiple login errors) |
+| `rule.level` | `9` (High) |
+| `data.win.system.eventID` | `4740` |
+| MITRE Techniques | T1110 Brute Force, T1531 Account Access Removal |
+| MITRE Tactics | Credential Access, Impact |
+| Compliance | PCI DSS 8.1.6/11.4, GDPR IV_35.7.d, HIPAA 164.312.a.1, NIST-800-53 AC.7/SI.4 |
+
+**Two lockout alerts confirmed:**
+
+| Account | Timestamp | Status |
+|---|---|---|
+| `Administrator` | May 11, 2026 @ 15:02:41 | Locked out ✅ |
+| `jasmine.rodgers` | May 11, 2026 @ 15:16:36 | Locked out ✅ |
+
+Full event timeline showing logon failures leading to lockout:
+
+![Wazuh event timeline — failures and lockout] <img width="1915" height="578" alt="image" src="https://github.com/user-attachments/assets/935c9e8d-574f-4b24-84fe-7c4511e51a8a" />
+
+
+> **Key finding:** The built-in Administrator account is subject to lockout policy on Windows Server 2022 — confirmed by testing.
+
+Accounts unlocked post-testing:
+
+```powershell
+Unlock-ADAccount -Identity administrator
+Unlock-ADAccount -Identity jasmine.rodgers
+```
+
+---
+
+### Attack 3 — LDAP Reconnaissance (T1018)
+
+#### Objective
+
+Simulate post-compromise AD enumeration using the valid credential obtained from the brute force phase.
+
+#### Credential Validation
+
+Credential validated against DC-01 and WS-01 over SMB before LDAP enumeration:
+
+![Credential validated against DC-01] <img width="956" height="170" alt="image" src="https://github.com/user-attachments/assets/0df3e5b2-9875-4ff4-a1fe-5a7f10d258f8" />
+
+![Credential validated against WS-01] <img width="1283" height="331" alt="image" src="https://github.com/user-attachments/assets/1fa2c181-1c4b-4af1-8db4-02730d487b1d" />
+
+
+> **Security gap noted:** WS-01 shows `signing:False` — SMB signing not enforced, making it vulnerable to SMB relay attacks.
+
+#### LDAP Enumeration Executed
+
+```bash
+nxc ldap 192.168.0.10 -u jasmine.rodgers -p 'TempPassword123!' -d lab.local --users
+```
+
+![All 20 domain users enumerated via LDAP] <img width="1280" height="480" alt="image" src="https://github.com/user-attachments/assets/b177f2a2-59ec-4851-8422-dca90814dad7" />
+
+
+All 20 domain users returned including usernames, last password set dates, and bad password counts.
+
+#### Detection in Wazuh — Rule 92652
+
+![Rule 92652 firing on DC-01 and WS-01] <img width="1874" height="455" alt="image" src="https://github.com/user-attachments/assets/1e20b9ac-7ff3-47f8-97c8-369e4e686101" />
+
+
+| Field | Value |
+|---|---|
+| `rule.id` | `92652` |
+| `rule.description` | Successful Remote Logon Detected - NTLM authentication, possible pass-the-hash attack |
+| `rule.level` | `6` |
+| `data.win.system.eventID` | `4624` |
+| Source IP | `192.168.0.80` (KALI-01) |
+| Account | `jasmine.rodgers` |
+| Auth Package | NTLM V2 |
+| Logon Type | `3` (Network) |
+| MITRE Techniques | T1550.002 Pass the Hash, T1078.002 Domain Accounts |
+| MITRE Tactics | Defense Evasion, Lateral Movement, Persistence, Privilege Escalation, Initial Access |
+
+Alerts fired on both DC-01 and WS-01.
+
+**Why NTLM flagged as possible Pass the Hash:**
+KALI-01 is not domain joined so it falls back to NTLM — behaviorally identical to a real Pass the Hash attack from Wazuh's perspective. A SOC analyst would investigate the source IP and correlate surrounding events to determine legitimacy.
+
+Level 3 logon success noise also observed during this window:
+
+![Level 3 Windows Logon Success alerts — DC01$ machine account] <img width="1906" height="595" alt="image" src="https://github.com/user-attachments/assets/0c2def11-7fd8-4507-a637-6572843055d2" />
+
+These are `DC01$` machine account authentications to its own services — normal DC background activity, not actionable. Suppression planned in the dedicated alert tuning phase.
+
+---
+
+## Decision — Pause Attack Simulation, Build Full Pipeline
+
+Remaining attack techniques (persistence, lateral movement, log clearing) will be executed after the Phase 2 automation pipeline is deployed so the complete SOC workflow fires end to end:
+
+```
+KALI-01 attack → Wazuh alert → TheHive case → Cortex enrichment → Shuffle playbook → osTicket ticket
+```
+
+**Phase 1 Status: Detection pipeline validated. Proceeding to Phase 2.**
