@@ -258,7 +258,7 @@ sudo nmap -sS -p 22,80,443,445,3389,5985,389,135 192.168.0.10
 
 Port `445` (SMB) was confirmed open — the primary attack surface for credential brute forcing in an Active Directory environment.
 
-![Nmap port scan results against DC01](screenshots/Screenshot_KALI01_Scanned_Dc01_for_openports.png)
+![Nmap port scan results against DC01] <img width="637" height="250" alt="image" src="https://github.com/user-attachments/assets/ace92893-ae92-4f4b-b1f1-3a3f6192c33e" />
 
 ---
 
@@ -282,7 +282,8 @@ CrackMapExec was installed on `KALI-01`:
 sudo apt install crackmapexec -y
 ```
 
-![CrackMapExec installed on KALI-01](screenshots/Screenshot_KALI01_installed_CrackMapExec.png)
+![CrackMapExec installed on KALI-01] <img width="797" height="176" alt="image" src="https://github.com/user-attachments/assets/b4a3cbfc-818b-4a45-a610-e8a0c11f87f4" />
+
 
 An SMB brute force attack was launched against `DC01` targeting the `administrator` account using the `rockyou.txt` wordlist:
 
@@ -299,7 +300,8 @@ SMB  192.168.0.10  445  DC01  [-] lab.local\administrator:iloveyou STATUS_LOGON_
 ...
 ```
 
-![CrackMapExec brute force running against DC01](screenshots/Screenshot_KALI01_runs_bruteforeattack_onDC01_using_crackmapexec.png)
+![CrackMapExec brute force running against DC01] <img width="1030" height="683" alt="image" src="https://github.com/user-attachments/assets/dbf39e8b-582b-4670-9f49-08b53e0c4045" />
+
 
 ---
 
@@ -318,7 +320,7 @@ The brute force generated **3,977 Event ID 4625** (An account failed to log on) 
 | Computer | `DC01.lab.local` |
 | Description | An account failed to log on |
 
-![DC01 Event Viewer — mass 4625 logon failures](screenshots/Screenshot_DC01_bruteforce_attacklog_in_event_viewer.png)
+![DC01 Event Viewer — mass 4625 logon failures] <img width="1029" height="701" alt="image" src="https://github.com/user-attachments/assets/72f0dacb-fd71-46a1-8c1e-83247cb71648" />
 
 ---
 
@@ -347,7 +349,8 @@ Full event data confirmed the complete attack chain:
 | Auth Package | NTLM ✅ |
 | Status | `0xC000006D` / SubStatus `0xC000006A` (bad password) ✅ |
 
-![Wazuh — Rule 60204 firing across 500+ events](screenshots/Screenshot_DC01_bruteforce_attacklog.png)
+![Wazuh — Rule 60204 firing across 500+ events] <img width="1904" height="678" alt="image" src="https://github.com/user-attachments/assets/41f26f00-395b-4ec0-8d67-69d8e82dac1e" />
+
 
 ---
 
