@@ -543,13 +543,13 @@ KALI-01 attack → Wazuh alert → TheHive case → Cortex enrichment → Shuffl
 
 ## Next Step
 
-Phase 2 begins with Shuffle — the SOAR orchestration layer that connects every tool in the pipeline. Before deploying Shuffle, INFRA-01 RAM must be bumped to 8GB in Proxmox to handle the additional load from TheHive, Cortex, and Elasticsearch.
+Phase 2 begins with Cortex — the observable enrichment engine that TheHive depends on during its own configuration. Before deploying anything, INFRA-01 must be resourced appropriately in Proxmox.
 
 **Before proceeding:**
 1. Shut down INFRA-01 in Proxmox
-2. Go to Hardware → Memory → set to 8192 MB
-3. Start INFRA-01, confirm it comes back up
+2. Hardware → Memory → set to 8192 MB
+3. Hardware → Processors → set to 1 socket, 4 cores
+4. Expand disk to 60GB minimum
+5. Start INFRA-01 and confirm it comes back up
 
-Shuffle is deployed on the Windows machine via Docker Desktop and must be running before the Wazuh webhook integration is configured. TheHive and Cortex are deployed after Shuffle is stable.
-
-→ Continue in [`shuffle-setup.md`](shuffle-setup.md)
+→ Continue in [`cortex-setup.md`](cortex-setup.md)
