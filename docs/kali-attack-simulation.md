@@ -543,6 +543,6 @@ KALI-01 attack → Wazuh alert → TheHive case → Cortex enrichment → Shuffl
 
 ## Next Step
 
-Phase 2 begins with the automation pipeline. TheHive is deployed first as the case management foundation before Shuffle orchestration is configured.
+Phase 2 begins with Shuffle — the SOAR orchestration layer that connects every tool in the pipeline. Shuffle is deployed first so the Wazuh webhook integration can be validated before TheHive and Cortex are introduced.
 
-→ Continue in [`thehive-setup.md`](thehive-setup.md)
+→ Continue in [`shuffle-setup.md`](shuffle-setup.md)
