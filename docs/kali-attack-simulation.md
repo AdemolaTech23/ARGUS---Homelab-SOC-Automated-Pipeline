@@ -539,4 +539,10 @@ Remaining attack techniques (persistence, lateral movement, log clearing) will b
 KALI-01 attack → Wazuh alert → TheHive case → Cortex enrichment → Shuffle playbook → osTicket ticket
 ```
 
-**Phase 1 Status: Detection pipeline validated. Proceeding to Phase 2.**
+---
+
+## Next Step
+
+Phase 2 begins with the automation pipeline. TheHive is deployed first as the case management foundation before Shuffle orchestration is configured.
+
+→ Continue in [`thehive-setup.md`](thehive-setup.md)
