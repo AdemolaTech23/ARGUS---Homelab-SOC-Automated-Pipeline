@@ -197,6 +197,18 @@ Get free API keys from:
 
 Click **Enable** on each analyzer and enter the API key when prompted.
 
+![Three analyzers enabled — AbuseIPDB, Shodan, VirusTotal confirmed active](screenshots/Hive01-Cortex_3AnalyzersAdded.png)
+
+### Analyzer Verification
+
+Run a test analysis against a known public IP to confirm all three analyzers are working. In Cortex go to **New Analysis**, enter `8.8.8.8` as an IP observable, and run all three analyzers.
+
+![All three analyzers returning Success against 8.8.8.8 — TLP:AMBER, PAP:AMBER](screenshots/Hive01-Cortex_3AnalyzersQueryAgainstGoogle.png)
+
+Expected results for `8.8.8.8`:
+- **AbuseIPDB** — Abuse score 0%, whitelisted (Google DNS)
+- **Shodan** — Open ports 53 and 443, owner Google LLC, Mountain View CA
+- **VirusTotal** — 0/91 engines flagged, reputation score +543
 ---
 
 ## Verification
