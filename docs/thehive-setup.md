@@ -197,13 +197,15 @@ Get free API keys from:
 
 Click **Enable** on each analyzer and enter the API key when prompted.
 
-![Three analyzers enabled — AbuseIPDB, Shodan, VirusTotal confirmed active](screenshots/Hive01-Cortex_3AnalyzersAdded.png)
+![Three analyzers enabled — AbuseIPDB, Shodan, VirusTotal confirmed active] <img width="1210" height="570" alt="Hive01-Cortex_3AnalyzersAdded" src="https://github.com/user-attachments/assets/ee2a39d0-76c7-4db0-b6a0-b8ba9a77999d" />
+(screenshots/Hive01-Cortex_3AnalyzersAdded.png)
 
 ### Analyzer Verification
 
 Run a test analysis against a known public IP to confirm all three analyzers are working. In Cortex go to **New Analysis**, enter `8.8.8.8` as an IP observable, and run all three analyzers.
 
-![All three analyzers returning Success against 8.8.8.8 — TLP:AMBER, PAP:AMBER](screenshots/Hive01-Cortex_3AnalyzersQueryAgainstGoogle.png)
+![All three analyzers returning Success against 8.8.8.8 — TLP:AMBER, PAP:AMBER] <img width="1825" height="400" alt="Hive01-Cortex_3AnalyzersQueryAgainstGoogle" src="https://github.com/user-attachments/assets/0263d48c-7615-46dd-9356-a91b62979d25" />
+(screenshots/Hive01-Cortex_3AnalyzersQueryAgainstGoogle.png)
 
 Expected results for `8.8.8.8`:
 - **AbuseIPDB** — Abuse score 0%, whitelisted (Google DNS)
