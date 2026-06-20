@@ -43,7 +43,7 @@ netsh interface ip add dns "Ethernet" 192.168.0.10 index=2
 
 **Why:** Wazuh's ossec.conf webhook URL is hardcoded to the Windows machine IP. If the IP changes via DHCP, the integration breaks. DC-01 as alternate DNS allows `lab.local` hostname resolution when needed.
 
-![Static IP assigned](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Ip_statically_assigned.png)
+![Static IP assigned] <img width="809" height="325" alt="image" src="https://github.com/user-attachments/assets/d27e7584-afbb-45e9-a4ac-e44dc76d5ae9" />
 
 ---
 
@@ -59,7 +59,7 @@ Windows (your machine)
             └── Shuffle containers (share the WSL 2 kernel)
 ```
 
-![Windows Subsystem for Linux](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Windows_Subsystem_for_linux_enabled.png)
+![Windows Subsystem for Linux] <img width="1060" height="651" alt="image" src="https://github.com/user-attachments/assets/6db4213e-4acd-4ad7-b811-ae50601d82f0" />
 
 Download Docker Desktop from `https://www.docker.com/products/docker-desktop/` and install to the external drive:
 
@@ -96,7 +96,8 @@ Expected output:
 git version 2.54.0.windows.1
 ```
 
-![Git installed](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Installed.png)
+![Git installed] <img width="571" height="363" alt="image" src="https://github.com/user-attachments/assets/ff48f771-e869-4938-b108-e16ae91f1c3c" />
+
 
 ---
 
@@ -130,11 +131,11 @@ The `-d` flag runs containers in detached mode — they run in the background wi
 | shuffle-orborus | Worker that executes workflow steps |
 | shuffle-opensearch | Database storing workflows and execution history |
 
-![Shuffle started via Docker](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Shuffle_started_via_docker.png)
+![Shuffle started via Docker] <img width="592" height="272" alt="image" src="https://github.com/user-attachments/assets/14d7eae3-cf61-4ae8-9a4d-ed47981c4bb1" />
 
 Allow Windows Defender Firewall access when prompted — select **Private networks only**.
 
-![Windows Defender Firewall alert](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Windows_security_Alert.png)
+![Windows Defender Firewall alert] <img width="515" height="366" alt="image" src="https://github.com/user-attachments/assets/72cd2153-03b0-41df-acb0-532276311071" />
 
 Verify all containers are running:
 ```
@@ -159,7 +160,8 @@ http://192.168.0.101:3001
 
 Create the administrator account on first load.
 
-![Shuffle frontend loaded](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Shuffle_Front_end_loaded_locally.png)
+![Shuffle frontend loaded] <img width="1794" height="670" alt="image" src="https://github.com/user-attachments/assets/0a4ecfb6-0f2c-44b9-8d24-71cc7cb62782" />
+
 
 ---
 
@@ -176,7 +178,7 @@ Create the administrator account on first load.
 
 **Why build from scratch (not a template):** Templates auto-generate steps configured for generic environments — wrong IPs, wrong API keys, wrong field mappings. Building manually means you understand exactly what each step does and the workflow is correctly configured for your environment. It also demonstrates genuine understanding on a portfolio project.
 
-![Webhook URI in Shuffle](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Webhook_given.png)
+![Webhook URI in Shuffle] <img width="1238" height="339" alt="image" src="https://github.com/user-attachments/assets/15e87eb1-f7ba-4d7d-abcf-66093c792f3a" />
 
 **Note on webhook IDs:** Each webhook trigger node gets a unique ID. If you recreate the workflow or add a new webhook node, a new ID is generated. Always update `ossec.conf` to match the current active webhook ID.
 
@@ -229,7 +231,8 @@ sudo systemctl status wazuh-manager
 
 Expected: `active (running)`
 
-![Wazuh configured with Shuffle webhook](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/SSH_into_wazuh-configured-connection-to-shuffle-webhook.png)
+![Wazuh configured with Shuffle webhook] <img width="923" height="182" alt="image" src="https://github.com/user-attachments/assets/9a25fe85-d547-4745-b300-d3eaf4e7d2e2" />
+
 
 ---
 
@@ -265,7 +268,8 @@ nxc smb 192.168.0.10 -u jasmine.rodgers -p /tmp/test-passwords.txt --ignore-pw-d
 
 Expected output: `STATUS_LOGON_FAILURE` for first attempts, then `STATUS_ACCOUNT_LOCKED_OUT` after hitting the 3-attempt lockout policy.
 
-![Kali attack simulation](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Kali_Attack_simulation___shuffle_webhook_test__.png)
+![Kali attack simulation] <img width="1668" height="300" alt="image" src="https://github.com/user-attachments/assets/dbbf72d3-be9e-4223-ac1a-940b47f829eb" />
+
 
 ### Confirm Alerts in Wazuh
 
@@ -279,7 +283,8 @@ Expected rules to fire:
 
 Rule 60115 (level 9) and Rule 92652 (level 6) both exceed the level 6 webhook threshold and will be forwarded to Shuffle.
 
-![Alerts generated in Wazuh](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Alert_generated_in_wazuh___shuffle_webhook_test__.png)
+![Alerts generated in Wazuh] <img width="1894" height="881" alt="image" src="https://github.com/user-attachments/assets/64e9bca2-e0cc-4918-9328-f084a20ee578" />
+
 
 ### Confirm Shuffle Received Alerts
 
@@ -295,9 +300,12 @@ In Shuffle, click the **Webhook 1** node in the workflow canvas. The right panel
 }
 ```
 
-![Shuffle receives Wazuh alerts](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Shuffle_recieves_wazuh_alerts.png)
-![Shuffle receives Wazuh alerts detail](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Shuffle_recieves_wazuh_alerts_1.png)
-![All Wazuh alerts in Shuffle](https://raw.githubusercontent.com/AdemolaTech23/ARGUS---Homelab-SOC-Automated-Pipeline/main/docs/screenshots/Wazuh___all_alert_generated__.png)
+![Shuffle receives Wazuh alerts] <img width="1288" height="818" alt="image" src="https://github.com/user-attachments/assets/a2fbb019-3623-4ac2-9041-cb2b267dd7da" />
+
+![Shuffle receives Wazuh alerts detail] <img width="1562" height="839" alt="image" src="https://github.com/user-attachments/assets/3dec78be-4dc7-4b35-8dda-4b90f82d155f" />
+
+![All Wazuh alerts in Shuffle] <img width="1913" height="245" alt="image" src="https://github.com/user-attachments/assets/8647c62c-ecb1-44df-88fd-759a6344002d" />
+
 
 **Pipeline verified:** KALI-01 → DC-01 → Wazuh → Shuffle ✅
 
